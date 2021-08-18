@@ -2,8 +2,6 @@ import { loadStdlib } from '@reach-sh/stdlib';
 import * as backend from './build/index.main.mjs';
 const stdlib = loadStdlib(process.env);
 
-
-
 (async () => {
   const startingBalance = stdlib.parseCurrency(10);
   const accAlice = await stdlib.newTestAccount(startingBalance);
@@ -20,6 +18,7 @@ const stdlib = loadStdlib(process.env);
   const HAND = ['Rock', 'Paper', 'Scissors'];
   const OUTCOME = ['Bob wins', 'Draw', 'Alice wins'];
   const Player = (Who) => ({
+    ...stdlib.hasRandom, // <--- new!
     getHand: () => {
       const hand = Math.floor(Math.random() * 3);
       console.log(`${Who} played ${HAND[hand]}`);
@@ -30,22 +29,17 @@ const stdlib = loadStdlib(process.env);
     },
   });
 
- 
-
   await Promise.all([
     backend.Alice(ctcAlice, {
       ...Player('Alice'),
       wager: stdlib.parseCurrency(5),
-    
     }),
     backend.Bob(ctcBob, {
       ...Player('Bob'),
       acceptWager: (amt) => {
         console.log(`Bob accepts the wager of ${fmt(amt)}.`);
-             },
-    
+      },
     }),
-  
   ]);
 
   const afterAlice = await getBalance(accAlice);
@@ -54,12 +48,4 @@ const stdlib = loadStdlib(process.env);
   console.log(`Alice went from ${beforeAlice} to ${afterAlice}.`);
   console.log(`Bob went from ${beforeBob} to ${afterBob}.`);
 
-
-
-
-
-
-
-
-
-})(); // <-- Don't forget these!
+})();
